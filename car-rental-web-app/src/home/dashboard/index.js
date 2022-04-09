@@ -58,11 +58,16 @@ function Choice() {
        <div class="hero-text">
          <h1>Choose what you are interested!</h1>
          <br></br>
-         <p> Search Car </p>
+         <p> Search and Add Car </p>
          <Link to={"./searchCar"}>
-           <button>Search Car</button>
+           <button>Search and Add Car</button>
          </Link>
          <p> </p>
+         {/* <p> Add Car </p>
+         <Link to={"./addCar"}>
+           <button>Add Car</button>
+         </Link>
+         <p> </p> */}
          <p> Car Plans</p>
          <Link to={"./searchCar"}>
            <button>Car Plans</button>
