@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.7.0 <0.9.0;
 
 import "./MicroToken.sol";
@@ -13,7 +14,6 @@ contract CarRental{
         PENDING,
         CAR_RECEIVED,
         WAITING_TO_PAY,
-        WAITING_TO_PAY_EXTRA_FEE,
         ACCOUNT_LOCKED
     }
     //(op)Dodo can buy insurance for the rental. She can buy while signing a contract with the company. The company will represent the Insurance Co.
@@ -63,6 +63,7 @@ contract CarRental{
         bool carReturned; // Car return status 
         uint extraFee; // Extra fee
         uint deposit; // deposit
+        uint lateFee; //late Fee
         RentState state;
     }
 
@@ -104,14 +105,6 @@ contract CarRental{
     modifier isAvailableCar(uint _carId) 
     {
         bool isAvailable = false;
-        // for(uint i=0; i< cars.length; i++)
-        // {
-        //     if(cars[i].carVin == _carVin)
-        //     {
-        //         isAvailable = true;
-        //         break;
-        //     }
-        // }
         if (_carId <= cars.length) {
             isAvailable = true;
         }
@@ -143,10 +136,18 @@ contract CarRental{
 
     function editCarInfo(uint _carId, string memory _carBrand, string memory _carDescription, string memory _carVin, uint _carSeat, uint _carPrice) public isABCCompany() {
         //carVin can not change->vin unique check do in server
+        bool carVinRepeat = false;
         cars[_carId-1].carBrand = _carBrand;
         cars[_carId-1].carDescription = _carDescription;
         cars[_carId-1].carSeat = _carSeat;
         cars[_carId-1].carPrice = _carPrice;
+        for (uint i = 0; i < cars.length; i++) {
+            if (keccak256(bytes(cars[i].carVin)) == keccak256(bytes(_carVin))) {
+                carVinRepeat = true;
+                break;
+            }
+        }
+        require(carVinRepeat == false, "Duplicated car vin number!");
         cars[_carId-1].carVin = _carVin;
     }
 
@@ -158,12 +159,12 @@ contract CarRental{
     function applyCar(uint _carId, string memory _renterId, uint _startDate, uint _endDate, uint _duration) public isAvailableCar(_carId){
         uint deposit = calculateDeposit(_duration, _carId);
 
-        rentalRecord memory record = rentalRecord(records.length + 1, _carId, _renterId, msg.sender, _startDate, _endDate, _duration, false, 0, deposit, RentState.REQUESTED);
+        rentalRecord memory record = rentalRecord(records.length + 1, _carId, _renterId, msg.sender, _startDate, _endDate, _duration, false, 0, deposit, 0, RentState.REQUESTED);
         records.push(record);
 
         emit carRentalRequest(record);
 
-        tokenSC.transferFrom(msg.sender, companyAddress, deposit);
+        tokenSC.transferFrom(msg.sender, companyAddress, deposit); //after this step user receive car?
 
     }
 
@@ -198,8 +199,91 @@ contract CarRental{
     function returnDeposit(uint _renterRecordId) public isABCCompany() {
 
         tokenSC.transferFrom(companyAddress, records[_renterRecordId-1].walletAddress, records[_renterRecordId-1].deposit);
-        records[_renterRecordId-1].state = RentState.COMPANY_REJECTED;
+        records[_renterRecordId-1].state = RentState.DEPOSIT_RETURNED;
 
     }
+
+    function applyReturnCar(uint _renterRecordId) public {
+        records[_renterRecordId-1].state = RentState.WAITING_TO_PAY;
+    }
+
+    function confirmReturn(uint _renterRecordId, uint _extraFee, uint _returnYear, uint _returnMonth, uint _returnDay) public isABCCompany() {
+
+        require(records[_renterRecordId-1].carReturned == false, "This car has already been returned.");
+
+        // Check date is entered correctly
+        require(_returnDay <= 31 && _returnDay >= 1, "Check your day entered!");
+        require(_returnMonth <= 12 && _returnMonth >= 1, "Check your month entered!");
+        require(_returnYear == getYear(block.timestamp), "Year of return should be the current year now which the car is returned.");
+
+        // Update the return date in records
+        records[_renterRecordId-1].endDate = _returnDay;
+
+        // Check if the car is returned late by calculating the days difference 
+        //between startDate and endDate, and compare with numOfDays that user intended to rent.
+        uint totalRentedDays = differentDays(records[_renterRecordId-1].startDate, _returnDay);
+
+        uint price = cars[records[_renterRecordId-1].carId -1].carPrice;
+
+        if (totalRentedDays > records[_renterRecordId-1].duration) {
+            records[_renterRecordId-1].lateFee = price * (totalRentedDays - records[_renterRecordId-1].duration); //charge rent * number of days late
+        }
+
+
+    }
+
+    function differentDays(uint fromTimestamp, uint toTimestamp) internal pure returns (uint _days) {
+        uint SECONDS_PER_DAY = 24 * 60 * 60;
+        require(fromTimestamp <= toTimestamp);
+        _days = (toTimestamp - fromTimestamp) / SECONDS_PER_DAY;
+    }
+
+    function getYear(uint timestamp) internal pure returns (uint year) {
+        uint secondsAccounted = 0;
+        uint numLeapYears;
+        uint16 ORIGIN_YEAR = 1970;
+        uint YEAR_IN_SECONDS = 31536000;
+        uint LEAP_YEAR_IN_SECONDS = 31622400;
+ 
+        // Year
+        year = uint16(ORIGIN_YEAR + timestamp / YEAR_IN_SECONDS);
+        numLeapYears = leapYearsBefore(year) - leapYearsBefore(ORIGIN_YEAR);
+ 
+        secondsAccounted += LEAP_YEAR_IN_SECONDS * numLeapYears;
+        secondsAccounted += YEAR_IN_SECONDS * (year - ORIGIN_YEAR - numLeapYears);
+ 
+        while (secondsAccounted > timestamp) {
+            if (isLeapYear(uint16(year - 1))) {
+                secondsAccounted -= LEAP_YEAR_IN_SECONDS;
+            }
+            else {
+                secondsAccounted -= YEAR_IN_SECONDS;
+            }
+            year -= 1;
+        }
+        return year;
+    }
+
+        //To calculate the leap year before the input year
+    function leapYearsBefore(uint year) public pure returns (uint) {
+        year -= 1;
+        return year / 4 - year / 100 + year / 400;
+    }
+
+    //To check if the year inputed is a leapyear
+    function isLeapYear(uint16 year) public pure returns (bool) {
+        if (year % 4 != 0) {
+            return false;
+        }
+        if (year % 100 != 0) {
+            return true;
+        }
+        if (year % 400 != 0) {
+            return false;
+        }
+        return true;
+    }
+
+
     
 }
