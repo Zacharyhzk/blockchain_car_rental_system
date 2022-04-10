@@ -47,21 +47,26 @@ contract CarRental{
         string userName; // Renter name
         uint userAge; // Renter age
         address walletAddress; // Wallet address of customer
-        IERC20 renterToken; // renter IERC20 token
+        //IERC20 renterToken; // renter IERC20 token
     }
 
     // Designing a structure to store the car renting history 
     struct rentalRecord {
-        string carVin; // Car vin
+        uint renterRecordId;
+        uint carId; // Car id
         string renterId; // Renter identity
-        IERC20 renterToken;
+        //IERC20 renterToken;
         address walletAddress; // Wallet address of customer
         uint startDate;  // Start date
         uint endDate;   // End date
         uint duration;  // Num of days
         bool carReturned; // Car return status 
         uint extraFee; // Extra fee
+        uint deposit; // deposit
+        RentState state;
     }
+
+    event carRentalRequest (rentalRecord);
 
     event addCarInfoRequest(
         uint carId, 
@@ -72,14 +77,16 @@ contract CarRental{
         bool carAvailable,
         uint carPrice
     );
+
+
     // do we need car available date
 
-    IERC20 public companyToken; // The token of the ABC company
+    IERC20 public tokenSC; // 
     address public companyAddress; // the address of the ABC company's account
     carInfo[] private cars;
+    rentalRecord[] private records; // to store the rental records
 
-    mapping(uint => renterInfo) public renters; // to store the information of each renter
-    mapping(uint => rentalRecord) public records; // to store the rental records
+    mapping(uint => renterInfo) public renters; // to store the information of each rente
 
     constructor () {
             companyAddress = msg.sender;
@@ -90,6 +97,25 @@ contract CarRental{
     modifier isABCCompany()
     {
         require(msg.sender == companyAddress, "It must be ABC company's address");
+        _;
+    }
+
+    //if car available,user car id or car vin?
+    modifier isAvailableCar(uint _carId) 
+    {
+        bool isAvailable = false;
+        // for(uint i=0; i< cars.length; i++)
+        // {
+        //     if(cars[i].carVin == _carVin)
+        //     {
+        //         isAvailable = true;
+        //         break;
+        //     }
+        // }
+        if (_carId <= cars.length) {
+            isAvailable = true;
+        }
+        require(isAvailable);
         _;
     }
 
@@ -112,6 +138,67 @@ contract CarRental{
         cars.push(car);
 
         emit addCarInfoRequest(car.carId, car.carBrand, car.carDescription, car.carVin, car.carSeat, car.carAvailable, car.carPrice);
+
+    }
+
+    function editCarInfo(uint _carId, string memory _carBrand, string memory _carDescription, string memory _carVin, uint _carSeat, uint _carPrice) public isABCCompany() {
+        //carVin can not change->vin unique check do in server
+        cars[_carId-1].carBrand = _carBrand;
+        cars[_carId-1].carDescription = _carDescription;
+        cars[_carId-1].carSeat = _carSeat;
+        cars[_carId-1].carPrice = _carPrice;
+        cars[_carId-1].carVin = _carVin;
+    }
+
+    function deleteCarInfo(uint _carId) public isABCCompany() {
+        //In case id issue, so just change the car status
+        cars[_carId].carAvailable = false;
+    }
+
+    function applyCar(uint _carId, string memory _renterId, uint _startDate, uint _endDate, uint _duration) public isAvailableCar(_carId){
+        uint deposit = calculateDeposit(_duration, _carId);
+
+        rentalRecord memory record = rentalRecord(records.length + 1, _carId, _renterId, msg.sender, _startDate, _endDate, _duration, false, 0, deposit, RentState.REQUESTED);
+        records.push(record);
+
+        emit carRentalRequest(record);
+
+        tokenSC.transferFrom(msg.sender, companyAddress, deposit);
+
+    }
+
+    function calculateDeposit(uint _duration, uint _carId) public view returns (uint deposit) {
+        //should use 10/100 rather than 0.1
+        return cars[_carId].carPrice * _duration * 10 / 100;
+    }
+
+    function approveRent(uint _renterRecordId, uint _carId) public isABCCompany() isAvailableCar(_carId) {
+
+        for (uint i = 0; i < records.length; i++) {
+            if (records[i].renterRecordId == _renterRecordId) {
+                records[i].state = RentState.COMPANY_APPROVED;
+                break;
+            }
+        }
+
+        cars[_carId - 1].carAvailable = false;
+    }
+
+    function rejectRent(uint _renterRecordId, uint _carId) public isABCCompany() isAvailableCar(_carId) {
+
+        for (uint i = 0; i < records.length; i++) {
+            if (records[i].renterRecordId == _renterRecordId) {
+                records[i].state = RentState.COMPANY_REJECTED;
+                break;
+            }
+        }
+
+    }
+
+    function returnDeposit(uint _renterRecordId) public isABCCompany() {
+
+        tokenSC.transferFrom(companyAddress, records[_renterRecordId-1].walletAddress, records[_renterRecordId-1].deposit);
+        records[_renterRecordId-1].state = RentState.COMPANY_REJECTED;
 
     }
     
