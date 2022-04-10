@@ -11,7 +11,7 @@ contract CarRental{
         COMPANY_REJECTED, 
         DEPOSIT_RETURNED,
         RENTER_SIGNED, 
-        PENDING,
+        CLOSE,
         CAR_RECEIVED,
         WAITING_TO_PAY,
         ACCOUNT_LOCKED
@@ -89,8 +89,9 @@ contract CarRental{
 
     mapping(uint => renterInfo) public renters; // to store the information of each rente
 
-    constructor () {
+    constructor (address microTokenContractAddress) {
             companyAddress = msg.sender;
+            tokenSC = MicroToken(microTokenContractAddress);
             //How to verify company's address
     }
 
@@ -229,6 +230,21 @@ contract CarRental{
             records[_renterRecordId-1].lateFee = price * (totalRentedDays - records[_renterRecordId-1].duration); //charge rent * number of days late
         }
 
+        records[_renterRecordId-1].extraFee = _extraFee;
+
+        records[_renterRecordId-1].state = RentState.WAITING_TO_PAY;
+
+    }
+
+    function payFee(uint _renterRecordId) public {
+        uint totalRentedDays = differentDays(records[_renterRecordId-1].startDate,records[_renterRecordId-1].endDate);
+        uint price = cars[records[_renterRecordId-1].carId -1].carPrice;
+        uint feeWaitingPay = totalRentedDays * price * 9 / 10 + records[_renterRecordId-1].extraFee;
+        
+        tokenSC.transferFrom(msg.sender,companyAddress, feeWaitingPay);
+        records[_renterRecordId-1].carReturned = true;
+
+        records[_renterRecordId-1].state = RentState.CLOSE;
 
     }
 
