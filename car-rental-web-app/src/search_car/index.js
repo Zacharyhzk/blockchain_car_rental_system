@@ -10,19 +10,21 @@ import Rent_form from './car_add_modal/rent_form';
 function ProfList() {
   const { CarRentalContract } = useContext(SmartContractContext);
   let userType = localStorage.getItem("userType");
-  const createBroker = async (values) => {
+  let Form;
+  const clickEntry = async (values) => {
     try {
-      const accounts = await window.ethereum.enable();
+        const accounts = await window.ethereum.enable();
+          console.log("12344",accounts)
+        await CarRentalContract.methods.addCarInfo(values.Deposit, values.Plate, values.Brand, values.Description, values.Type).send({ from: accounts[0] });
+        message.success('Add Car Info Successfully');
+        console.log("234")
 
-      await CarRentalContract.methods
-        .addCarInfo(values.socialId, values.address, values.name)
-        .send({ from: accounts[0] });
-      message.success("Registered as Broker successfully");
     } catch (err) {
-      debugger;
-      message.error("Error registering as Broker");
+  debugger
+  console.log("22",err)
+        message.error('Error Add Car Info');
     }
-  };
+};
 
   let history = useHistory();
   const [carList, setCarList] = useState([
@@ -109,11 +111,9 @@ function ProfList() {
   };
 
   const handleOk = () => {
-    setConfirmLoading(true);
-    setTimeout(() => {
-      setVisible(false);
-      setConfirmLoading(false);
-    }, 2000);
+    // console.log(Form.getFieldsValue(),"123")
+    clickEntry(Form.getFieldsValue());
+    Form.resetFields()
   };
 
   const handleCancel = () => {
@@ -151,11 +151,8 @@ function ProfList() {
         confirmLoading={confirmLoading}
         onCancel={handleCancel}
       >
-      <Rent_form 
-      // {...props.location.state} setForm={(form)=>{Form=form}}
-      //                setAddress={(addr)=>{wallet_address=addr}}
-      //                setDate = {(date)=>{from_to_end=date}}               
-              />
+      <Rent_form setForm={(form)=>{
+        Form=form}}             />
       </Modal>
       </>
       ) : (

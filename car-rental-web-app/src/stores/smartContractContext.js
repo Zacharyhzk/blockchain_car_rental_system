@@ -22,10 +22,12 @@ export const SmartContractContextProvider = ({ children }) => {
 	// const MicroTokenContract = new web3.eth.Contract(MicroTokenBuild.abi, microTokenAddress);
 	// const BankLoanContract = new web3.eth.Contract(BankLoanBuild.abi, bankLoanAddress);
 	const CarRentalContract = new web3.eth.Contract(CarRentalBuild.abi, carRentalAddress);
+	
+
 
 	const context = { web3, CarRentalContract };
-
 	return (
+		
 		<SmartContractContext.Provider value={context}>
 			{children}
 		</SmartContractContext.Provider>

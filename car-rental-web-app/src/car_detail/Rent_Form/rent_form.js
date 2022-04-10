@@ -120,6 +120,12 @@ function Rent_form(props) {
             >
                 <Input disabled/>
             </Form.Item>
+            <Form.Item
+                name="duration"
+                label="duration"
+            >
+                <Input/>
+            </Form.Item>
         </Form>
     )
 }
