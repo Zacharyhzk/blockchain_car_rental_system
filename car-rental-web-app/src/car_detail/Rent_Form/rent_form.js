@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 
 function Rent_form(props) {
     let { id, carBrand, carType, image, carVin,
-        Deposit, Rental, Availability, Description } = props;
+        Deposit, carPrice, Availability, Description } = props;
     let [address,setAddre] = useState('');
   //  let [Total_Deposit,setTotal_Deposit] = useState(0);
     let [From_End,setDate] = useState([]);
@@ -16,7 +16,7 @@ function Rent_form(props) {
     let initialValues = {
         carBrand: carBrand,
         carVin: carVin,
-        Rent_Fee:  Rental,
+        Rent_Fee:  '',
     }
 
     useEffect(()=>{
@@ -48,15 +48,11 @@ function Rent_form(props) {
            console.log(values);
     }
     
-    const setDeposit = (value)=>{
+    const setDeposit = (event)=>{
+          let duration = event.target.value;
           myRef.current.setFieldsValue({
-            Total_Deposit: 12
+             Rent_Fee: Number(duration)*Number(carPrice)
           })
-          console.log(value);
-          setDate(()=>{
-              return value
-          });
-          props.setDate(value); 
     }
 
     const setAddress = (e)=>{
@@ -111,7 +107,7 @@ function Rent_form(props) {
                     style={{
                         width: '100%',
                     }}
-                    onChange= {setDeposit}
+                    
                 />
             </Form.Item>
             {/* <Form.Item
@@ -123,6 +119,7 @@ function Rent_form(props) {
             <Form.Item
                 name="duration"
                 label="duration"
+                onChange= {setDeposit}
             >
                 <Input/>
             </Form.Item>

@@ -1,5 +1,5 @@
 import TextField from "@material-ui/core/TextField";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import '../../button.css';
 import { postApi } from '../../util/fetchApi';
@@ -12,6 +12,14 @@ function Login() {
     const [password, setPassword] = useState('');
     const [type, setType] = useState('')
     let history = useHistory();
+
+    useEffect(()=>{
+      let temp = [];
+      if(JSON.parse(localStorage.getItem("storage")) === [] || JSON.parse(localStorage.getItem("record")) === []){
+        localStorage.setItem("storage", JSON.stringify(temp));
+        localStorage.setItem("record", JSON.stringify(temp));
+      }
+    },[]);
 
     const  clickSignin = async () => {
       try {

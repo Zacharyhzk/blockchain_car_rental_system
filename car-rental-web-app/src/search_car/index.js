@@ -8,10 +8,14 @@ import { message, Button, Modal } from "antd";
 import Rent_form from "./car_add_modal/rent_form";
 
 function ProfList() {
-  const { CarRentalContract } = useContext(SmartContractContext);
+  const { CarRentalContract, MicroTokenContract } =
+    useContext(SmartContractContext);
   let userType = localStorage.getItem("userType");
   let Form;
   let storage = JSON.parse(localStorage.getItem("storage"));
+  const [carList, setCarList] = useState([]);
+  // let carList = [];
+  // let newCarList = [];
   const clickEntry = async (values) => {
     try {
       let temp = {
@@ -42,6 +46,15 @@ function ProfList() {
         .send({
           from: accounts[0],
         });
+
+      // const response =  MicroTokenContract.methods.balanceOf(accounts[0]).call();
+      // console.log("MicroTokenContract balance", response);
+      // const a = CarRentalContract.methods.getAllCars().call();
+      // setCars(a);
+      // console.log("carstest11111", a);
+      // console.log("carstest11111", cars);
+      // const renters = CarRentalContract.methods.getAllCars().call();
+      // console.log("carstest11111", cars);
       message.success("Add Car Info Successfully");
       console.log("234");
     } catch (err) {
@@ -55,92 +68,14 @@ function ProfList() {
   // console.log("all car", CarRentalContract.methods.getAllCars().call())
   useEffect(async () => {
     try {
-      await CarRentalContract.methods.getAllCars();
-
-      console.log(CarRentalContract.methods.getAllCars(), "234");
+      let temp = await CarRentalContract.methods.getAllCars().call();
+      setCarList(temp);
     } catch (err) {
-      debugger;
+      // debugger;
       console.log("22", err);
       message.error("Error Get All Car Info");
     }
   }, []);
-
-  const [carList, setCarList] = useState(
-    JSON.parse(localStorage.getItem("storage"))
-  );
-
-  // useEffect( ()=>{
-  //   setCarList(JSON.parse(localStorage.getItem("storage")))
-  // },[carList])
-
-  // const [carList, setCarList] = useState([
-  //   {
-  //     id: 1,
-  //     carBrand: "Kia",
-  //     carType: "1",
-  //     image: "img1",
-  //     plateNumber: "SLB1231",
-  //     Deposit: "S$10",
-  //     Rental: "2S$",
-  //     Availability: 0,
-  //     Description: "Mass-Market Cars",
-  //   },
-  //   {
-  //     id: 2,
-  //     carBrand: "Chang AN X7",
-  //     carType: 2,
-  //     image: "img2",
-  //     plateNumber: "SLB121",
-  //     Deposit: "S$5",
-  //     Rental: "3S$",
-  //     Availability: 1,
-  //     Description: "Mass-Market Cars",
-  //   },
-  //   {
-  //     id: 3,
-  //     carBrand: "Tesla",
-  //     carType: "3",
-  //     image: "img3",
-  //     plateNumber: "SZB1431",
-  //     Deposit: "S$6",
-  //     Rental: "4S$",
-  //     Availability: 0,
-  //     Description: "Luxury Electric Vehicles",
-  //   },
-  //   {
-  //     id: 4,
-  //     carBrand: "Suzuki--x",
-  //     carType: "4",
-  //     image: "img4",
-  //     plateNumber: "SDB3431",
-  //     Deposit: "S$4",
-  //     Rental: "6S$",
-  //     Availability: 1,
-  //     Description: "Mass-Market Cars",
-  //   },
-  //   {
-  //     id: 5,
-  //     carBrand: "Suzuki xx",
-  //     carType: "4",
-  //     image: "img5",
-  //     plateNumber: "SXB4431",
-  //     Deposit: "S$10",
-  //     Rental: "1S$",
-  //     Availability: 0,
-  //     Description: "Mass-Market Cars",
-  //   },
-  //   {
-  //     id: 6,
-  //     carBrand: "Hyundai",
-  //     carType: "4",
-  //     image: "img6",
-  //     plateNumber: "SXB4431",
-  //     Deposit: "S$10",
-  //     Rental: "1S$",
-  //     Availability: 1,
-  //     Description: "Small Cars",
-  //   },
-  // ]);
 
   const logOut = () => {
     // localStorage.setItem("Token", "");

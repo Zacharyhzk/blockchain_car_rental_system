@@ -3,15 +3,18 @@ import { useState } from "react";
 import { useHistory } from "react-router";
 import ProfileEntryCard from "./profile_entrycard";
 import SmartContractContext from "../stores/smartContractContext";
+import { PayCircleOutlined,CheckCircleOutlined,CloseOutlined } from '@ant-design/icons';
 import "./index.css"
 
 function CourseList() {
     const { CarRentalContract } = useContext(SmartContractContext);
     let history = useHistory();
+    let [records,setRecords] = useState(JSON.parse(localStorage.getItem('record')));
     let token = localStorage.getItem('Token')
     const [courseList, setCourseList] = useState([
         { courseID: "123", courseName: "1233", professorName: "1313" }
     ]);
+
 
     // const [data, setData] = useState([]);    
     // const getRecords = async () => {
@@ -92,9 +95,6 @@ function CourseList() {
                         Car Model
                     </th>
                     <th> 
-                        Car Plan ID
-                    </th>
-                    <th> 
                         Status
                     </th>
                     <th> 
@@ -104,26 +104,24 @@ function CourseList() {
                         Action
                     </th>
                     </tr>
-                    { courseList.map((user) => {
+                    { records.map((user) => {
                     return(
                         <tr>
                         <td>
-                            {user.iD}
+                            {user.carId}
                         </td>
                         <td>
-                            {user.price}
+                            {user.fee}
                         </td>
                         <td>
                             {user.rentPeriod}
                         </td>
                         <td>
                             {user.carModel}
-                        </td>
+                        </td>                    
                         <td>
-                            {user.carPlan}
-                        </td>
-                        <td>
-                            {user.status}
+                        {user.carAvailable==="1"? <CheckCircleOutlined style={{color:'green', fontSize:'14px'}} /> 
+                : <CloseOutlined style={{color:'red',fontSize:'14px'}} />}
                         </td>
                         <td>
                             {user.carCondition}

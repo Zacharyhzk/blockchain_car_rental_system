@@ -17,7 +17,7 @@ const { Meta } = Card;
 function Rent_Car(props) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   let {
-    id,
+    carId,
     carBrand,
     carType,
     // image,
@@ -38,16 +38,17 @@ function Rent_Car(props) {
   const clickEntry = async (values) => {
     try {
       let temp = {
-        carId: values.carId,
-        carBrand: values.carBrand,
-        carDescription: values.carDescription,
+        carId: carId,
+        carBrand: carBrand,
+        carDescription: carDescription,
         carVin: values.carVin,
-        carSeat: values.carSeat,
-        carAvailable: values.carAvailable,
-        carPrice: values.carPrice,
+        carAvailable: carAvailable==='1'?'0':'1',
+        carPrice: carPrice,
         walletAddress: values.Wallet_Address,
+        duration: values.duration,
+        fee: values.Rent_Fee
       };
-      debugger
+   //   debugger
       record.push(temp);
       localStorage.setItem("record", JSON.stringify(record));
       const accounts = await window.ethereum.enable();
@@ -60,6 +61,8 @@ function Rent_Car(props) {
       from: accounts[0] });
       message.success("Apply Car Info Successfully");
       console.log("234");
+
+     
     } catch (err) {
       debugger;
       console.log("22", err);
@@ -71,15 +74,26 @@ function Rent_Car(props) {
     // localStorage.setItem("Token", "");
     // localStorage.setItem("username", "");
     // window.dispatchEvent(new Event("storage"));
-    history.push("/");
+    history.push("/dashboard");
   };
 
   const showModal = () => {
     setIsModalVisible(true);
   };
 
-  const handleOk = () => {
-    clickEntry(Form.getFieldsValue());
+  const handleOk = async() => {
+     await clickEntry(Form.getFieldsValue());
+     Form.resetFields();
+     setIsModalVisible(false);
+     let arr = JSON.parse(localStorage.getItem('storage'));
+     console.log(arr);
+     let target = arr.find((item)=>{
+               return item.carId===carId
+      });
+     console.log(target);
+     target.carAvailable = target.carAvailable==='1'?'0':'1';
+     localStorage.setItem("storage",JSON.stringify(arr));
+     history.push("/dashboard");
 
     // if (wallet_address === "") {
     //   alert("please input");
@@ -100,6 +114,7 @@ function Rent_Car(props) {
   };
 
   const handleCancel = () => {
+    Form.resetFields();
     setIsModalVisible(false);
   };
 
