@@ -23,7 +23,7 @@ function CarEntryCard(props) {
             <p>Car Description: {carDescription}</p >
             <p>Car Seat: {carSeat}</p >
             <p>Car Avialability: &nbsp;
-                {carAvailable==="1"? <CheckCircleOutlined style={{color:'green', fontSize:'14px'}} /> 
+                {carAvailable===true? <CheckCircleOutlined style={{color:'green', fontSize:'14px'}} /> 
                 : <CloseOutlined style={{color:'red',fontSize:'14px'}} />}</p >
         </div>
     )
@@ -34,19 +34,6 @@ function CarEntryCard(props) {
                <PayCircleOutlined />
            </div>
     )]
-    // return (
-    //     <div id="job" style={{width: '300px'}}>
-    //             <div>
-    //                 <p>Car Brand: </p >
-    //                 <p>Car Type: </p >
-    //                 <p>Car License Plate Number: </p >
-    //                 <p>Deposit Amount: </p >
-    //                 <p>Rental Amount: </p >
-    //                 <p>Car Avialability: </p >
-    //                 <p>Description: </p >
-    //             </div>
-    //     </div>
-    // );
     return (
         <Card
              style={{ width: '300px', margin: '20px 10px 8px 20px' }}

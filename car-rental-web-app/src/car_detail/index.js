@@ -42,7 +42,7 @@ function Rent_Car(props) {
         carBrand: carBrand,
         carDescription: carDescription,
         carVin: values.carVin,
-        carAvailable: carAvailable==='1'?'0':'1',
+        carAvailable: carAvailable===true?false:true,
         carPrice: carPrice,
         walletAddress: values.Wallet_Address,
         duration: values.duration,
@@ -91,7 +91,7 @@ function Rent_Car(props) {
                return item.carId===carId
       });
      console.log(target);
-     target.carAvailable = target.carAvailable==='1'?'0':'1';
+     target.carAvailable = target.carAvailable===true?false:true;
      localStorage.setItem("storage",JSON.stringify(arr));
      history.push("/dashboard");
 
@@ -133,7 +133,7 @@ function Rent_Car(props) {
       <p>Description: {carDescription} </p>
       <p>
         Car Avialability: &nbsp;
-        {carAvailable === "1" ? (
+        {carAvailable === true ? (
           <CheckCircleOutlined style={{ color: "green", fontSize: "14px" }} />
         ) : (
           <CloseOutlined style={{ color: "red", fontSize: "14px" }} />
@@ -143,7 +143,7 @@ function Rent_Car(props) {
   );
   let action = (
     <div>
-      {carAvailable === "1" ? (
+      {carAvailable === true ? (
         <Button
           onClick={showModal}
           block="true"
