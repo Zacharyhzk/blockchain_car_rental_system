@@ -61,7 +61,7 @@ function Rent_Car(props) {
       // from: accounts[0] });
       await CarRentalContract.methods
         .applyCar(
-          0,
+          carId,
           userName,
           1234,
           4567,

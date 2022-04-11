@@ -29,9 +29,10 @@ function CourseList() {
   const showModal = () => {
     setVisible(true);
   };
-  const showModal2 = (selectId) => {
+  const showModal2 = async (selectId) => {
     setSelectId(selectId)
     setVisible(true);
+    localStorage.setItem("selectId",selectId);
   };
   let userName = localStorage.getItem("userName");
   let userType = localStorage.getItem("userType");
@@ -57,10 +58,25 @@ function CourseList() {
       // console.log(Form.getFieldsValue(),"123")
       //   clickEntry(Form.getFieldsValue());
     //   console.log(parseInt(selectId),"44")
-      await CarRentalContract.methods
-        .applyReturnCar(
-        parseInt(selectId)
-        ).call();
+    //   await CarRentalContract.methods
+    //     .applyReturnCar(
+    //     parseInt(selectId)
+    //     ).call();
+
+    const applyReturnCar = async (selectId) => {
+        try {
+          const accounts = await window.ethereum.enable();
+          selectId = localStorage.getItem("selectId");
+          await CarRentalContract.methods.applyReturnCar(selectId).send({ from: accounts[0] });
+          // message.success(`Return status ${selectId} updated`);
+        } catch (err) {
+          console.log(err);
+          message.error('apply return Car error');
+          debugger
+        }
+    };
+    applyReturnCar();
+
         message.success("Return Car Successfully");
       Form.resetFields();
       setVisible(false);
