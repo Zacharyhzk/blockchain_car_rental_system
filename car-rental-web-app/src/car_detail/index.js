@@ -10,7 +10,7 @@ import {
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
 import Rent_form from "./Rent_Form/rent_form";
-import SmartContractContext from '../stores/smartContractContext';
+import SmartContractContext from "../stores/smartContractContext";
 import { message } from "antd";
 
 const { Meta } = Card;
@@ -34,7 +34,9 @@ function Rent_Car(props) {
   let from_to_end = [];
   // let myRef = useRef();
   let record = JSON.parse(localStorage.getItem("record"));
-  const { CarRentalContract, MicroTokenContract } = useContext(SmartContractContext);
+  let userName = localStorage.getItem("userName");
+  const { CarRentalContract, MicroTokenContract } =
+    useContext(SmartContractContext);
   const clickEntry = async (values) => {
     try {
       let temp = {
@@ -42,27 +44,35 @@ function Rent_Car(props) {
         carBrand: carBrand,
         carDescription: carDescription,
         carVin: values.carVin,
-        carAvailable: carAvailable===true?false:true,
+        carAvailable: carAvailable === true ? false : true,
         carPrice: carPrice,
         walletAddress: values.Wallet_Address,
         duration: values.duration,
-        fee: values.Rent_Fee
+        fee: values.Rent_Fee,
       };
-   //   debugger
+      //   debugger
       record.push(temp);
       localStorage.setItem("record", JSON.stringify(record));
       const accounts = await window.ethereum.enable();
       console.log("12344", accounts);
       // await MicroTokenContract.methods.transfer('0x611028530093a8F8dB8b501304f220fCbCDe90bB', 12).send({
-			// 	from: accounts[0] });
+      // 	from: accounts[0] });
       // await CarRentalContract.methods.applyCar(values.Wallet_Address, values.Total_Deposit).send({
       // from: accounts[0] });
-      await CarRentalContract.methods.applyCar(0, 0, 25525, 252525, 2).send({
-      from: accounts[0] });
+      await CarRentalContract.methods
+        .applyCar(
+          carId,
+          userName,
+          1234,
+          4567,
+          values.duration,
+          values.Rent_Fee
+        )
+        .send({
+          from: accounts[0],
+        });
       message.success("Apply Car Info Successfully");
       console.log("234");
-
-     
     } catch (err) {
       debugger;
       console.log("22", err);
@@ -81,19 +91,19 @@ function Rent_Car(props) {
     setIsModalVisible(true);
   };
 
-  const handleOk = async() => {
-     await clickEntry(Form.getFieldsValue());
-     Form.resetFields();
-     setIsModalVisible(false);
-     let arr = JSON.parse(localStorage.getItem('storage'));
-     console.log(arr);
-     let target = arr.find((item)=>{
-               return item.carId===carId
-      });
-     console.log(target);
-     target.carAvailable = target.carAvailable===true?false:true;
-     localStorage.setItem("storage",JSON.stringify(arr));
-     history.push("/dashboard");
+  const handleOk = async () => {
+    await clickEntry(Form.getFieldsValue());
+    Form.resetFields();
+    setIsModalVisible(false);
+    //  let arr = JSON.parse(localStorage.getItem('storage'));
+    //  console.log(arr);
+    //  let target = arr.find((item)=>{
+    //            return item.carId===carId
+    //   });
+    //  console.log(target);
+    //  target.carAvailable = target.carAvailable===true?false:true;
+    //  localStorage.setItem("storage",JSON.stringify(arr));
+    history.push("/dashboard");
 
     // if (wallet_address === "") {
     //   alert("please input");

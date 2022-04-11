@@ -48,7 +48,6 @@ contract CarRental{
         string userName; // Renter name
         uint userAge; // Renter age
         address walletAddress; // Wallet address of customer
-        //IERC20 renterToken; // renter IERC20 token
     }
 
     // Designing a structure to store the car renting history 
@@ -65,6 +64,8 @@ contract CarRental{
         uint deposit; // deposit
         uint lateFee; //late Fee
         RentState state;
+        string carVin; // Car rental price per day
+        string carBrand; // Car rental price per day
     }
 
     event carRentalRequest (rentalRecord);
@@ -168,23 +169,25 @@ contract CarRental{
         cars[_carId].carAvailable = false;
     }
 
-    function applyCar(uint _carId, string memory _renterId, uint _startDate, uint _endDate, uint _duration) payable public isAvailableCar(_carId) {
+    function applyCar(uint _carId, string memory _renterId, uint _startDate, uint _endDate, uint _duration, uint _deposit) payable public isAvailableCar(_carId) {
         //onlyRegisteredCustomerCanCall
-        uint deposit = calculateDeposit(_duration, _carId);
+        //uint deposit = calculateDeposit(_duration, _carId);
 
-        rentalRecord memory record = rentalRecord(records.length, _carId, _renterId, msg.sender, _startDate, _endDate, _duration, false, 0, deposit, 0, RentState.REQUESTED);
+        rentalRecord memory record = rentalRecord(records.length, _carId, _renterId, msg.sender, _startDate, _endDate, _duration, false, 0, _deposit, 0, RentState.REQUESTED, cars[_carId].carVin, cars[_carId].carBrand);
         records.push(record);
 
         emit carRentalRequest(record);
 
         // companyAddress.transfer(deposit);
-        tokenSC.transferFrom(msg.sender, companyAddress, deposit); //after this step user receive car?
+        tokenSC.transfer(companyAddress, _deposit);
+        cars[_carId].carAvailable = false;
 
     }
 
     function calculateDeposit(uint _duration, uint _carId) public view returns (uint deposit) {
         //should use 10/100 rather than 0.1
-        return cars[_carId].carPrice * _duration * 10 / 100;
+        // return cars[_carId].carPrice * _duration * 10 / 100;
+        return cars[_carId].carPrice * _duration;
     }
 
     function approveRent(uint _renterRecordId, uint _carId) public isABCCompany() isAvailableCar(_carId) {
@@ -220,11 +223,12 @@ contract CarRental{
 
     }
 
-    function applyReturnCar(uint _renterRecordId) public onlyRegisteredCustomerCanCall {
+    function applyReturnCar(uint _renterRecordId) public {
         records[_renterRecordId-1].state = RentState.WAITING_TO_PAY;
     }
 
-    function confirmReturn(uint _renterRecordId, uint _extraFee, uint _returnYear, uint _returnMonth, uint _returnDay) public isABCCompany() {
+    function confirmReturn(uint _renterRecordId, uint _extraFee, uint _returnYear, uint _returnMonth, uint _returnDay) public{
+        //isABCCompany() 
 
         require(records[_renterRecordId-1].carReturned == false, "This car has already been returned.");
 
@@ -251,6 +255,15 @@ contract CarRental{
         records[_renterRecordId-1].state = RentState.WAITING_TO_PAY;
 
     }
+
+    function confirmReturnExtra(uint _renterRecordId, uint _carId, uint _damageFee, address _userAddress) payable public {
+        require(records[_renterRecordId-1].state = RentState.WAITING_TO_PAY);
+        tokenSC.transfer(_userAddress, _damageFee);
+        cars[_carId].carAvailable = true;
+        records[_renterRecordId].state = RentState.CLOSE;
+
+    }
+
 
     function payFee(uint _renterRecordId) public {
         uint totalRentedDays = differentDays(records[_renterRecordId-1].startDate,records[_renterRecordId-1].endDate);
@@ -366,6 +379,16 @@ contract CarRental{
 
     function getRecordById(uint _recordId) public view returns (rentalRecord memory) {
         return records[_recordId];
+    }
+
+    function removeRecords(uint _renterRecordId) public isABCCompany
+    {
+        for (uint i = 0; i < records.length; i++) {
+            if (records[i].renterRecordId == _renterRecordId) {
+                records[i].state = RentState.CLOSE;
+                break;
+            }
+        }
     }
 
     
