@@ -179,7 +179,7 @@ contract CarRental{
         emit carRentalRequest(record);
 
         // companyAddress.transfer(deposit);
-        tokenSC.transfer(companyAddress, _deposit);
+        tokenSC.transfer(companyAddress, _deposit); //after this step user receive car?
         cars[_carId].carAvailable = false;
 
     }
@@ -224,13 +224,13 @@ contract CarRental{
     }
 
     function applyReturnCar(uint _renterRecordId) public {
-        records[_renterRecordId-1].state = RentState.WAITING_TO_PAY;
+        records[_renterRecordId].state = RentState.WAITING_TO_PAY;
     }
 
     function confirmReturn(uint _renterRecordId, uint _extraFee, uint _returnYear, uint _returnMonth, uint _returnDay) public{
         //isABCCompany() 
 
-        require(records[_renterRecordId-1].carReturned == false, "This car has already been returned.");
+        require(records[_renterRecordId].carReturned == false, "This car has already been returned.");
 
         // Check date is entered correctly
         require(_returnDay <= 31 && _returnDay >= 1, "Check your day entered!");
@@ -238,26 +238,27 @@ contract CarRental{
         require(_returnYear == getYear(block.timestamp), "Year of return should be the current year now which the car is returned.");
 
         // Update the return date in records
-        records[_renterRecordId-1].endDate = _returnDay;
+        records[_renterRecordId].endDate = _returnDay;
 
         // Check if the car is returned late by calculating the days difference 
         //between startDate and endDate, and compare with numOfDays that user intended to rent.
-        uint totalRentedDays = differentDays(records[_renterRecordId-1].startDate, _returnDay);
+        uint totalRentedDays = differentDays(records[_renterRecordId].startDate, _returnDay);
 
-        uint price = cars[records[_renterRecordId-1].carId -1].carPrice;
+        uint price = cars[records[_renterRecordId].carId -1].carPrice;
 
-        if (totalRentedDays > records[_renterRecordId-1].duration) {
-            records[_renterRecordId-1].lateFee = price * (totalRentedDays - records[_renterRecordId-1].duration); //charge rent * number of days late
+        if (totalRentedDays > records[_renterRecordId].duration) {
+            records[_renterRecordId].lateFee = price * (totalRentedDays - records[_renterRecordId-1].duration); //charge rent * number of days late
         }
 
-        records[_renterRecordId-1].extraFee = _extraFee;
+        records[_renterRecordId].extraFee = _extraFee;
 
-        records[_renterRecordId-1].state = RentState.WAITING_TO_PAY;
+        records[_renterRecordId].state = RentState.WAITING_TO_PAY;
 
     }
 
     function confirmReturnExtra(uint _renterRecordId, uint _carId, uint _damageFee, address _userAddress) payable public {
-        require(records[_renterRecordId-1].state = RentState.WAITING_TO_PAY);
+        require(records[_renterRecordId].state == RentState.WAITING_TO_PAY, "User didn't apply return this car.");
+        
         tokenSC.transfer(_userAddress, _damageFee);
         cars[_carId].carAvailable = true;
         records[_renterRecordId].state = RentState.CLOSE;
@@ -270,8 +271,8 @@ contract CarRental{
         uint price = cars[records[_renterRecordId-1].carId -1].carPrice;
         uint feeWaitingPay = totalRentedDays * price * 9 / 10 + records[_renterRecordId-1].extraFee;
         
-        companyAddress.transfer(feeWaitingPay);
-        //tokenSC.transferFrom(msg.sender,companyAddress, feeWaitingPay);
+        //companyAddress.transfer(feeWaitingPay);
+        tokenSC.transfer(companyAddress, feeWaitingPay);
         records[_renterRecordId-1].carReturned = true;
 
         records[_renterRecordId-1].state = RentState.CLOSE;

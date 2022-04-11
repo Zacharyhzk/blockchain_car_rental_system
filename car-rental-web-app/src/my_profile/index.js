@@ -60,9 +60,8 @@ function CourseList() {
       await CarRentalContract.methods
         .applyReturnCar(
         parseInt(selectId)
-        )
-        .call();
-    
+        ).call();
+        message.success("Return Car Successfully");
       Form.resetFields();
       setVisible(false);
     //   history.push("/dashboard");

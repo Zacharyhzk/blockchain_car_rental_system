@@ -13,13 +13,13 @@ function Login() {
     const [type, setType] = useState('')
     let history = useHistory();
 
-    useEffect(()=>{
-      let temp = [];
-      if(JSON.parse(localStorage.getItem("storage")) === [] || JSON.parse(localStorage.getItem("record")) === []){
-        localStorage.setItem("storage", JSON.stringify(temp));
-        localStorage.setItem("record", JSON.stringify(temp));
-      }
-    },[]);
+    // useEffect(()=>{
+    //   let temp = [];
+    //   if(JSON.parse(localStorage.getItem("storage")) === [] || JSON.parse(localStorage.getItem("record")) === []){
+    //     localStorage.setItem("storage", JSON.stringify(temp));
+    //     localStorage.setItem("record", JSON.stringify(temp));
+    //   }
+    // },[]);
 
     const  clickSignin = async () => {
       try {
@@ -46,11 +46,11 @@ function Login() {
           localStorage.setItem("userType", type);
           // localStorage.setItem("storage",  JSON.stringify([]));
           // localStorage.setItem("record",  JSON.stringify([]));
-          let temp = [];
-          if(JSON.parse(localStorage.getItem("storage")) === [] || JSON.parse(localStorage.getItem("record")) === []){
-            localStorage.setItem("storage", JSON.stringify(temp));
-            localStorage.setItem("record", JSON.stringify(temp));
-          }
+          // let temp = [];
+          // if(JSON.parse(localStorage.getItem("storage")) === [] || JSON.parse(localStorage.getItem("record")) === []){
+          //   localStorage.setItem("storage", JSON.stringify(temp));
+          //   localStorage.setItem("record", JSON.stringify(temp));
+          // }
           history.push('/dashboard')
         } else{
           alert(result.message);

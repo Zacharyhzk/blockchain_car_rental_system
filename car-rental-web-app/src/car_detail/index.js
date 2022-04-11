@@ -52,7 +52,7 @@ function Rent_Car(props) {
       };
       //   debugger
       record.push(temp);
-      localStorage.setItem("record", JSON.stringify(record));
+      // localStorage.setItem("record", JSON.stringify(record));
       const accounts = await window.ethereum.enable();
       console.log("12344", accounts);
       // await MicroTokenContract.methods.transfer('0x611028530093a8F8dB8b501304f220fCbCDe90bB', 12).send({
@@ -61,7 +61,7 @@ function Rent_Car(props) {
       // from: accounts[0] });
       await CarRentalContract.methods
         .applyCar(
-          carId,
+          0,
           userName,
           1234,
           4567,

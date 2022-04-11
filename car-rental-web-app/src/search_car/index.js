@@ -12,7 +12,7 @@ function ProfList() {
     useContext(SmartContractContext);
   let userType = localStorage.getItem("userType");
   let Form;
-  let storage = JSON.parse(localStorage.getItem("storage"));
+  // let storage = JSON.parse(localStorage.getItem("storage"));
   const [carList, setCarList] = useState([]);
   // let carList = [];
   // let newCarList = [];
@@ -27,8 +27,8 @@ function ProfList() {
         carAvailable: values.carAvailable,
         carPrice: values.carPrice,
       };
-      storage.push(temp);
-      localStorage.setItem("storage", JSON.stringify(storage));
+      // storage.push(temp);
+      // localStorage.setItem("storage", JSON.stringify(storage));
       const accounts = await window.ethereum.enable();
       console.log("12344", accounts);
       console.log(CarRentalContract._address);
