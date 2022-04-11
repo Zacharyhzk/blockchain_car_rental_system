@@ -57,25 +57,25 @@ function Rent_form(props) {
       size={componentSize}
       ref={myRef}
     >
-      <Form.Item label="Car Deposit" name="Deposit">
-        <Input />
-      </Form.Item>
-      <Form.Item label="Car Plate" name="Plate">
-        <Input />
-      </Form.Item>
-      <Form.Item label="Car Brand" name="Brand">
-        <Input />
-      </Form.Item>
-      <Form.Item label="Car Description" name="Description">
-        <Input />
-      </Form.Item>
-      <Form.Item label="Car Type" name="Type">
+      <Form.Item label="Car Id" name="carId">
         <InputNumber />
       </Form.Item>
-      <Form.Item label="Car Price" name="Price">
+      <Form.Item label="Car Brand" name="carBrand">
+        <Input />
+      </Form.Item>
+      <Form.Item label="Car Description" name="carDescription">
+        <Input />
+      </Form.Item>
+      <Form.Item label="Car Vin" name="carVin">
+        <Input />
+      </Form.Item>
+      <Form.Item label="Car Seat" name="carSeat">
         <InputNumber />
       </Form.Item>
-      <Form.Item label="Car Status" name="Status">
+      <Form.Item label="Car Price" name="carPrice">
+        <InputNumber />
+      </Form.Item>
+      <Form.Item label="Car Status" name="carAvailable">
         <Select name ="Avail">
           <Select.Option value="1">Available</Select.Option>
           <Select.Option value="0">Not Available</Select.Option>

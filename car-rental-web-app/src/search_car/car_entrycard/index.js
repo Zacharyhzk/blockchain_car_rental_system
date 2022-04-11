@@ -8,9 +8,8 @@ import * as images from '../../images/index.js';
 const { Meta } = Card;
 
 function CarEntryCard(props) {
-    let {carBrand,image,plateNumber,Availability,Rental} = props;
+    let {carAvailable, carBrand, carDescription, carId, carPrice, carSeat, carVin} = props;
     let history = useHistory();
-    let img = images[image];
     let title = (
          <div style={{fontSize:'18px'}}>
          <span>Car Brand:</span>&nbsp; 
@@ -19,10 +18,12 @@ function CarEntryCard(props) {
     )
     let description = (
         <div >
-            <p>Car Plate Number: {plateNumber}</p >
-            <p>Rental Fee: {Rental}/per day </p >
+            <p>Car Plate Number: {carVin}</p >
+            <p>Rental Fee: {carPrice}/per day </p >
+            <p>Car Description: {carDescription}</p >
+            <p>Car Seat: {carSeat}</p >
             <p>Car Avialability: &nbsp;
-                {Availability===1? <CheckCircleOutlined style={{color:'green', fontSize:'14px'}} /> 
+                {carAvailable==="1"? <CheckCircleOutlined style={{color:'green', fontSize:'14px'}} /> 
                 : <CloseOutlined style={{color:'red',fontSize:'14px'}} />}</p >
         </div>
     )
@@ -49,12 +50,12 @@ function CarEntryCard(props) {
     return (
         <Card
              style={{ width: '300px', margin: '20px 10px 8px 20px' }}
-            cover={
-                <img src={img}
-                    alt="example"
-                    style={{width: '300px', height: '200px'}}
-                />
-            }
+            // cover={
+            //     <img src={img}
+            //         alt="example"
+            //         style={{width: '300px', height: '200px'}}
+            //     />
+            // }
             actions={actions}
         >
             <Meta

@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 
 
 function Rent_form(props) {
-    let { id, carBrand, carType, image, plateNumber,
+    let { id, carBrand, carType, image, carVin,
         Deposit, Rental, Availability, Description } = props;
     let [address,setAddre] = useState('');
   //  let [Total_Deposit,setTotal_Deposit] = useState(0);
@@ -15,7 +15,7 @@ function Rent_form(props) {
     let myRef = useRef();
     let initialValues = {
         Car_Brand: carBrand,
-        Plate_Number: plateNumber,
+        Plate_Number: carVin,
         Rent_Fee:  Rental,
     }
 
@@ -114,12 +114,12 @@ function Rent_form(props) {
                     onChange= {setDeposit}
                 />
             </Form.Item>
-            <Form.Item
+            {/* <Form.Item
                 name="Total_Deposit"
                 label="Total_Deposit"
             >
                 <Input disabled/>
-            </Form.Item>
+            </Form.Item> */}
             <Form.Item
                 name="duration"
                 label="duration"

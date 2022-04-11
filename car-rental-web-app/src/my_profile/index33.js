@@ -22,9 +22,9 @@ function BasicLayout({ children }) {
 
   const { Header, Sider } = Layout;
   const logOut = () => {
-    localStorage.setItem("Token", "");
-    localStorage.setItem("username", "");
-    window.dispatchEvent(new Event("storage"));
+    // localStorage.setItem("Token", "");
+    // localStorage.setItem("username", "");
+    // window.dispatchEvent(new Event("storage"));
     history.push("/");
   };
 

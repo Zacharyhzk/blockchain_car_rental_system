@@ -8,8 +8,8 @@ function Choice() {
     let userName=localStorage.getItem("userName");
     let userType =localStorage.getItem("userType");
     const logOut = () => {
-        localStorage.setItem('userName', '')
-        window.dispatchEvent(new Event('storage'))
+        // localStorage.setItem('userName', '')
+        // window.dispatchEvent(new Event('storage'))
         history.push("/")
     }
   return (
@@ -68,14 +68,14 @@ function Choice() {
            <button>Add Car</button>
          </Link>
          <p> </p> */}
-         <p> Car Plans</p>
+         {/* <p> Car Plans</p>
          <Link to={"./searchCar"}>
            <button>Car Plans</button>
          </Link>
-         <p> </p>
-         <p> Renters </p>
+         <p> </p> */}
+         <p> Car Plans </p>
          <Link to={"./profile"}>
-           <button>Renters</button>
+           <button>Car Plans</button>
          </Link>
        </div>
      </div>

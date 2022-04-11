@@ -1,41 +1,91 @@
-import { useEffect } from "react";
+import { useEffect, useContext} from "react";
 import { useState } from "react";
 import { useHistory } from "react-router";
 import ProfileEntryCard from "./profile_entrycard";
+import SmartContractContext from "../stores/smartContractContext";
 import "./index.css"
 
 function CourseList() {
+    const { CarRentalContract } = useContext(SmartContractContext);
     let history = useHistory();
     let token = localStorage.getItem('Token')
     const [courseList, setCourseList] = useState([
         { courseID: "123", courseName: "1233", professorName: "1313" }
     ]);
 
-//     useEffect(() => {
-//         const url = "http://34.126.85.190:8080/course";
-//         const request = new Request(url, {
-//               method: "get",
-//               body: null,
-//               headers:new Headers ({
-//               'Token': token,
-//               'Accept': "application/json, text/plain, */*",
-//               "Content-Type": "application/json"
-//               })
-//           })      
-//           fetch(request).then((res) => {
-//               return res.json()
-//           }).then(json => {
-//               setCourseList(json.course_list) 
-//           }).catch(error => {
-//               console.log(error);
-//           });
+    // const [data, setData] = useState([]);    
+    // const getRecords = async () => {
+    //     try {
+
+    //         // let records = localStorage.getItem("record")
+    //         debugger
+    //         // const response = await CarRentalContract.methods.getAllReconds().call();
+    //         // debugger
+    //         // console.log(response,"1233")
+    //         // setData([
+    //         //         {
+    //         //           "carId": 0,
+    //         //           "carBrand": "123",
+    //         //           "carDescription": "23",
+    //         //           "carVin": "423",
+    //         //           "carSeat": 5,
+    //         //           "carAvailable": "1",
+    //         //           "carPrice": 30
+    //         //         }
+    //         // ]);
+    //         // for (let i = 0; i < response.length; i++) {
+    //         //     const row = {
+    //         //         key: response[i].id,
+    //         //         id: response[i].id,
+    //         //         amount: response[i].amount,
+    //         //         period: response[i].months,
+    //         //     };
+    //         //     setData((prev) => {
+    //         //         return [...prev, row];
+    //         //     });
+    //         // }
+
+    //         // setData([]);
+            
+    //     } catch (err) {
+
+    //         console.log(err);
+    //         alert('Error occured while loading current Loans');
+    //     }
+    // };
+    // useEffect(()=>{
+    //     getRecords()
+    // },[])
+
+//     useEffect(async() => {
+//         // let temp = {
+//         //     carId: values.carId,
+//         //     carBrand: values.carBrand,
+//         //     carDescription: values.carDescription,
+//         //     carVin: values.carVin,
+//         //     carSeat: values.carSeat,
+//         //     carAvailable: values.carAvailable,
+//         //     carPrice: values.carPrice,
+//         //   };
+//         //   storage.push(temp);
+//         //   localStorage.setItem("storage", JSON.stringify(storage));
+//         //   const accounts = await window.ethereum.enable();
+//         //   console.log("12344", accounts);
+//         //   console.log(CarRentalContract._address);
+//           await CarRentalContract.methods
+//             .getAllReconds().
+//             send({
+//               from: accounts[0],
+//             });
+//           message.success("Add Car Info Successfully");
+//           console.log("234");
 //     }
 //   , [])
 
     const logOut = () => {
-        localStorage.setItem('Token', '')
-        localStorage.setItem('username', '')
-        window.dispatchEvent(new Event('storage'))
+        // localStorage.setItem('Token', '')
+        // localStorage.setItem('username', '')
+        // window.dispatchEvent(new Event('storage'))
         history.push("/")
     }
 

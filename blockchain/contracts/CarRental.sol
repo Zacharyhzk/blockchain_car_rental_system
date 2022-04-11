@@ -56,7 +56,6 @@ contract CarRental{
         uint renterRecordId;
         uint carId; // Car id
         string renterId; // Renter identity
-        //IERC20 renterToken;
         address walletAddress; // Wallet address of customer
         uint startDate;  // Start date
         uint endDate;   // End date
@@ -127,11 +126,11 @@ contract CarRental{
 
     //add user just need add rentRequest or still need 
 
-    function addCarInfo(string memory _carBrand, string memory _carDescription, string memory _carVin, uint _carSeat, uint _carPrice, address contractAddress) public payable
+    function addCarInfo(uint _CarId, string memory _carBrand, string memory _carDescription, string memory _carVin, uint _carSeat, bool _available, uint _carPrice, address contractAddress) public payable 
     {
         // isABCCompany
         bool carVinUnique = true;
-        carInfo memory car = carInfo(cars.length, _carBrand, _carDescription, _carVin, _carSeat, true, _carPrice);
+        carInfo memory car = carInfo(_CarId, _carBrand, _carDescription, _carVin, _carSeat, _available, _carPrice);
         for (uint i = 0; i < cars.length; i++) {
             if (keccak256(bytes(cars[i].carVin)) == keccak256(bytes(_carVin))) {
                 carVinUnique = false;
@@ -146,7 +145,7 @@ contract CarRental{
 
     }
 
-    function editCarInfo(uint _carId, string memory _carBrand, string memory _carDescription, string memory _carVin, uint _carSeat, uint _carPrice) payable public  {
+    function editCarInfo(uint _carId, string memory _carBrand, string memory _carDescription, string memory _carVin, uint _carSeat, uint _carPrice) payable public isABCCompany{
         //isABCCompany()
         //carVin can not change->vin unique check do in server
         bool carVinRepeat = false;
@@ -164,7 +163,7 @@ contract CarRental{
         cars[_carId-1].carVin = _carVin;
     }
 
-    function deleteCarInfo(uint _carId) public payable isABCCompany() {
+    function deleteCarInfo(uint _carId) public payable isABCCompany {
         //In case id issue, so just change the car status
         cars[_carId].carAvailable = false;
     }
@@ -360,5 +359,15 @@ contract CarRental{
         //pay attentation the carid relationship with index and id
         return cars[_carId];
     }
+
+    function getAllReconds() public view returns (rentalRecord[] memory) {
+        return records;
+    }
+
+    function getRecordById(uint _recordId) public view returns (rentalRecord memory) {
+        return records[_recordId];
+    }
+
+    
     
 }

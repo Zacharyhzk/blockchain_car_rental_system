@@ -2,7 +2,7 @@ import "./index.css";
 import { useHistory } from "react-router";
 import { useEffect, useRef, useState, useContext } from "react";
 import { Card, Avatar, Button, Modal } from "antd";
-import * as images from "../images/index.js";
+// import * as images from "../images/index.js";
 import {
   PayCircleOutlined,
   CheckCircleOutlined,
@@ -20,15 +20,15 @@ function Rent_Car(props) {
     id,
     carBrand,
     carType,
-    image,
-    plateNumber,
+    // image,
+    carVin,
     Deposit,
-    Rental,
-    Availability,
-    Description,
+    carPrice,
+    carAvailable,
+    carDescription,
   } = props.location.state;
   let history = useHistory();
-  let img = images[image];
+  // let img = images[image];
   let Form;
   let wallet_address = "";
   let from_to_end = [];
@@ -54,9 +54,9 @@ function Rent_Car(props) {
   };
 
   const logOut = () => {
-    localStorage.setItem("Token", "");
-    localStorage.setItem("username", "");
-    window.dispatchEvent(new Event("storage"));
+    // localStorage.setItem("Token", "");
+    // localStorage.setItem("username", "");
+    // window.dispatchEvent(new Event("storage"));
     history.push("/");
   };
 
@@ -97,14 +97,14 @@ function Rent_Car(props) {
   );
   let description = (
     <div>
-      <p>Car License Plate Number: {plateNumber}</p>
-      <p>Car Type: {carType} </p>
-      <p>Rental Fee: {Rental}/per day </p>
-      <p>Deposit: {Deposit} </p>
-      <p>Description: {Description} </p>
+      <p>Car License Plate Number: {carVin}</p>
+      {/* <p>Car Type: {carType} </p> */}
+      <p>Rental Fee: {carPrice}/per day </p>
+      {/* <p>Deposit: {Deposit} </p> */}
+      <p>Description: {carDescription} </p>
       <p>
         Car Avialability: &nbsp;
-        {Availability === 1 ? (
+        {carAvailable === "1" ? (
           <CheckCircleOutlined style={{ color: "green", fontSize: "14px" }} />
         ) : (
           <CloseOutlined style={{ color: "red", fontSize: "14px" }} />
@@ -114,7 +114,7 @@ function Rent_Car(props) {
   );
   let action = (
     <div>
-      {Availability === 1 ? (
+      {carAvailable === "1" ? (
         <Button
           onClick={showModal}
           block="true"
@@ -152,13 +152,13 @@ function Rent_Car(props) {
       </div>
       <Card
         style={{ width: "300px", margin: "10px auto" }}
-        cover={
-          <img
-            src={img}
-            alt="example"
-            style={{ width: "300px", height: "200px" }}
-          />
-        }
+        // cover={
+        //   <img
+        //     src={img}
+        //     alt="example"
+        //     style={{ width: "300px", height: "200px" }}
+        //   />
+        // }
         actions={actions}
       >
         <Meta title={title} description={description} />

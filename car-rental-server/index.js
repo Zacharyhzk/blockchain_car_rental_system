@@ -33,6 +33,7 @@ const paymentsRoute = require('./routes/payments');
 const userAuthRoute = require('./routes/userAuth');
 
 //MIDDLEWARE
+app.use(cors())
 
 app.use(Express.urlencoded({ extended: true }));
 app.use(Express.json())
@@ -42,7 +43,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs))
 app.use('/loan-plans', plansRoute);
 app.use('/loan-payments', paymentsRoute);
 app.use('/user-auth', userAuthRoute);
-app.use('/carI')
+// app.use('/carI')
 
 //ROUTES
 app.get('/', (req, res) => {

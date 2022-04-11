@@ -34,8 +34,16 @@ function Login() {
         // await console.log(result);
         if (response.code == 4){
           message.success('User log in successfully');
-          localStorage.setItem("userName", username)
-          localStorage.setItem("userType", type)
+          localStorage.setItem("userName", username);
+          localStorage.setItem("userType", type);
+          let temp = [];
+          // if(JSON.parse(localStorage.getItem("storage")) === [] || JSON.parse(localStorage.getItem("record")) === []){
+          //   localStorage.setItem("storage", JSON.stringify(temp));
+          //   localStorage.setItem("record", JSON.stringify(temp));
+          // }
+          if(JSON.parse(localStorage.getItem("storage")) === []){
+            localStorage.setItem("storage", JSON.stringify(temp));
+          }
           history.push('/dashboard')
         } else{
           alert(result.message);
