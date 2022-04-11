@@ -36,13 +36,12 @@ function Login() {
           message.success('User log in successfully');
           localStorage.setItem("userName", username);
           localStorage.setItem("userType", type);
+          // localStorage.setItem("storage",  JSON.stringify([]));
+          // localStorage.setItem("record",  JSON.stringify([]));
           let temp = [];
-          // if(JSON.parse(localStorage.getItem("storage")) === [] || JSON.parse(localStorage.getItem("record")) === []){
-          //   localStorage.setItem("storage", JSON.stringify(temp));
-          //   localStorage.setItem("record", JSON.stringify(temp));
-          // }
-          if(JSON.parse(localStorage.getItem("storage")) === []){
+          if(JSON.parse(localStorage.getItem("storage")) === [] || JSON.parse(localStorage.getItem("record")) === []){
             localStorage.setItem("storage", JSON.stringify(temp));
+            localStorage.setItem("record", JSON.stringify(temp));
           }
           history.push('/dashboard')
         } else{

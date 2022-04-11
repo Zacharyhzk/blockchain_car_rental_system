@@ -57,30 +57,7 @@ function CourseList() {
     //     getRecords()
     // },[])
 
-//     useEffect(async() => {
-//         // let temp = {
-//         //     carId: values.carId,
-//         //     carBrand: values.carBrand,
-//         //     carDescription: values.carDescription,
-//         //     carVin: values.carVin,
-//         //     carSeat: values.carSeat,
-//         //     carAvailable: values.carAvailable,
-//         //     carPrice: values.carPrice,
-//         //   };
-//         //   storage.push(temp);
-//         //   localStorage.setItem("storage", JSON.stringify(storage));
-//         //   const accounts = await window.ethereum.enable();
-//         //   console.log("12344", accounts);
-//         //   console.log(CarRentalContract._address);
-//           await CarRentalContract.methods
-//             .getAllReconds().
-//             send({
-//               from: accounts[0],
-//             });
-//           message.success("Add Car Info Successfully");
-//           console.log("234");
-//     }
-//   , [])
+
 
     const logOut = () => {
         // localStorage.setItem('Token', '')

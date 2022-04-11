@@ -33,9 +33,23 @@ function Rent_Car(props) {
   let wallet_address = "";
   let from_to_end = [];
   // let myRef = useRef();
+  let record = JSON.parse(localStorage.getItem("record"));
   const { CarRentalContract, MicroTokenContract } = useContext(SmartContractContext);
   const clickEntry = async (values) => {
     try {
+      let temp = {
+        carId: values.carId,
+        carBrand: values.carBrand,
+        carDescription: values.carDescription,
+        carVin: values.carVin,
+        carSeat: values.carSeat,
+        carAvailable: values.carAvailable,
+        carPrice: values.carPrice,
+        walletAddress: values.Wallet_Address,
+      };
+      debugger
+      record.push(temp);
+      localStorage.setItem("record", JSON.stringify(record));
       const accounts = await window.ethereum.enable();
       console.log("12344", accounts);
       // await MicroTokenContract.methods.transfer('0x611028530093a8F8dB8b501304f220fCbCDe90bB', 12).send({

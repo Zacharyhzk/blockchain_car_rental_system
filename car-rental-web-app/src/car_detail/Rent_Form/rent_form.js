@@ -14,8 +14,8 @@ function Rent_form(props) {
     let [From_End,setDate] = useState([]);
     let myRef = useRef();
     let initialValues = {
-        Car_Brand: carBrand,
-        Plate_Number: carVin,
+        carBrand: carBrand,
+        carVin: carVin,
         Rent_Fee:  Rental,
     }
 
@@ -75,13 +75,13 @@ function Rent_form(props) {
               ref={myRef}
         >
             <Form.Item
-                name="Car_Brand"
+                name="carBrand"
                 label="Car_Brand"
             >
                 <Input disabled/>
             </Form.Item>
             <Form.Item
-                name="Plate_Number"
+                name="carVin"
                 label="Plate_Number"
             >
                 <Input disabled/>

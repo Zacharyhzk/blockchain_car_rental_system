@@ -38,7 +38,9 @@ function Signup() {
         } else{
           alert(result.message);
         }
+        debugger
       } catch (err) {
+        debugger
         message.error('Error while adding the User Info');
         console.log(err);
       }
