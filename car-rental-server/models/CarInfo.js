@@ -31,4 +31,4 @@ const CarInfoSchema = mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model('CarInfoSchema', CarInfoSchema)
+module.exports = mongoose.model('CarInfo', CarInfoSchema)
