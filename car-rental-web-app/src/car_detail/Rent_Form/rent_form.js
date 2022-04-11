@@ -50,7 +50,7 @@ function Rent_form(props) {
     
     const setDeposit = (value)=>{
           myRef.current.setFieldsValue({
-            Total_Deposit: '12 S$'
+            Total_Deposit: 12
           })
           console.log(value);
           setDate(()=>{

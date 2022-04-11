@@ -18,7 +18,7 @@ function CourseEntry() {
           try {
               const accounts = await window.ethereum.enable();
                 console.log("12344",accounts)
-              await CarRentalContract.methods.addCarInfo("brand", "des", "carVin", 4, 20, true).send({ from: accounts[0] });
+              await CarRentalContract.methods.addCarInfo("brand", "des", "carVin", 4, 20, true);
               message.success('Add Car Info Successfully');
               console.log("234")
 

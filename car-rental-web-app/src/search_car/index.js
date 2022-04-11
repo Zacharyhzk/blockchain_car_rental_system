@@ -14,8 +14,10 @@ function ProfList() {
   const clickEntry = async (values) => {
     try {
         const accounts = await window.ethereum.enable();
-          console.log("12344",accounts)
-        await CarRentalContract.methods.addCarInfo(values.Deposit, values.Plate, values.Brand, values.Description, values.Type).send({ from: accounts[0] });
+        console.log("12344",accounts);
+        console.log(CarRentalContract._address)
+        await CarRentalContract.methods.addCarInfo(values.Brand, values.Description, values.Plate, values.Type, 20, CarRentalContract._address).send({
+          from: accounts[0] });;
         message.success('Add Car Info Successfully');
         console.log("234")
 
@@ -27,6 +29,7 @@ function ProfList() {
 };
 
   let history = useHistory();
+  console.log("all car", CarRentalContract.methods.getAllCars().call)
   const [carList, setCarList] = useState([
     {
       id: 1,
@@ -42,7 +45,7 @@ function ProfList() {
     {
       id: 2,
       carBrand: "Chang AN X7",
-      carType: "2",
+      carType: 2,
       image: "img2",
       plateNumber: "SLB121",
       Deposit: "S$5",

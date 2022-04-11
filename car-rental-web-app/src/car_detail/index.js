@@ -33,21 +33,18 @@ function Rent_Car(props) {
   let wallet_address = "";
   let from_to_end = [];
   // let myRef = useRef();
-  const { CarRentalContract } = useContext(SmartContractContext);
+  const { CarRentalContract, MicroTokenContract } = useContext(SmartContractContext);
   const clickEntry = async (values) => {
     try {
       const accounts = await window.ethereum.enable();
       console.log("12344", accounts);
-      await CarRentalContract.methods
-        .applyCar(
-          values.Wallet_Address,
-          values.duration,
-          values.Wallet_Address,
-          values.Wallet_Address,
-          values.duration
-        )
-        .send({ from: accounts[0] });
-      message.success("Add Car Info Successfully");
+      // await MicroTokenContract.methods.transfer('0x611028530093a8F8dB8b501304f220fCbCDe90bB', 12).send({
+			// 	from: accounts[0] });
+      // await CarRentalContract.methods.applyCar(values.Wallet_Address, values.Total_Deposit).send({
+      // from: accounts[0] });
+      await CarRentalContract.methods.applyCar(0, 0, 25525, 252525, 2).send({
+      from: accounts[0] });
+      message.success("Apply Car Info Successfully");
       console.log("234");
     } catch (err) {
       debugger;

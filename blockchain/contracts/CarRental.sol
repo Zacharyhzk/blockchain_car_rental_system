@@ -2,6 +2,8 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 import "./MicroToken.sol";
+import "./UserIdentity.sol";
+// import "truffle/Console.sol";
 
 contract CarRental{
 
@@ -12,7 +14,6 @@ contract CarRental{
         DEPOSIT_RETURNED,
         RENTER_SIGNED, 
         CLOSE,
-        CAR_RECEIVED,
         WAITING_TO_PAY,
         ACCOUNT_LOCKED
     }
@@ -79,20 +80,22 @@ contract CarRental{
         uint carPrice
     );
 
-
     // do we need car available date
 
-    IERC20 public tokenSC; // 
-    address public companyAddress; // the address of the ABC company's account
+    MicroToken public tokenSC; // 
+    // add user identity management
+    UserIdentity public identitySC;
+    address payable public companyAddress; // the address of the ABC company's account
     carInfo[] private cars;
     rentalRecord[] private records; // to store the rental records
+    uint public carCount = 0; // count the number of the cars added
 
     mapping(uint => renterInfo) public renters; // to store the information of each rente
 
-    constructor (address microTokenContractAddress) {
-            companyAddress = msg.sender;
-            tokenSC = MicroToken(microTokenContractAddress);
-            //How to verify company's address
+    constructor (address _userIdentityAddress, address _microTokenAddress) payable{
+            companyAddress = payable(msg.sender);
+            tokenSC = MicroToken(_microTokenAddress);
+            identitySC = UserIdentity(_userIdentityAddress);
     }
 
     // Modifiers  
@@ -113,15 +116,23 @@ contract CarRental{
         _;
     }
 
+    // A modifier that uses for the function which can only be called by Borrower.
+    modifier onlyRegisteredCustomerCanCall {
+        // Now only borrower can request rent
+        require(identitySC.verifyIsBorrower(msg.sender), "Bank Borrower Only");
+       _;
+   }
+
     //Do we need modifier to verify renter's address???
 
     //add user just need add rentRequest or still need 
 
-    function addCarInfo(string memory _carBrand, string memory _carDescription, string memory _carVin, uint _carSeat, uint _carPrice) public isABCCompany()
+    function addCarInfo(string memory _carBrand, string memory _carDescription, string memory _carVin, uint _carSeat, uint _carPrice, address contractAddress) public payable
     {
+        // isABCCompany
         bool carVinUnique = true;
-        carInfo memory car = carInfo(cars.length + 1, _carBrand, _carDescription, _carVin, _carSeat, true, _carPrice);
-        for (uint i = 0; i < cars.length+1; i++) {
+        carInfo memory car = carInfo(cars.length, _carBrand, _carDescription, _carVin, _carSeat, true, _carPrice);
+        for (uint i = 0; i < cars.length; i++) {
             if (keccak256(bytes(cars[i].carVin)) == keccak256(bytes(_carVin))) {
                 carVinUnique = false;
                 break; 
@@ -129,13 +140,14 @@ contract CarRental{
         }
 
         require(carVinUnique == true, "Duplicated car license vin number!");
+        tokenSC.transfer(contractAddress, _carPrice / 100);
         cars.push(car);
-
         emit addCarInfoRequest(car.carId, car.carBrand, car.carDescription, car.carVin, car.carSeat, car.carAvailable, car.carPrice);
 
     }
 
-    function editCarInfo(uint _carId, string memory _carBrand, string memory _carDescription, string memory _carVin, uint _carSeat, uint _carPrice) public isABCCompany() {
+    function editCarInfo(uint _carId, string memory _carBrand, string memory _carDescription, string memory _carVin, uint _carSeat, uint _carPrice) payable public  {
+        //isABCCompany()
         //carVin can not change->vin unique check do in server
         bool carVinRepeat = false;
         cars[_carId-1].carBrand = _carBrand;
@@ -152,19 +164,21 @@ contract CarRental{
         cars[_carId-1].carVin = _carVin;
     }
 
-    function deleteCarInfo(uint _carId) public isABCCompany() {
+    function deleteCarInfo(uint _carId) public payable isABCCompany() {
         //In case id issue, so just change the car status
         cars[_carId].carAvailable = false;
     }
 
-    function applyCar(uint _carId, string memory _renterId, uint _startDate, uint _endDate, uint _duration) public isAvailableCar(_carId){
+    function applyCar(uint _carId, string memory _renterId, uint _startDate, uint _endDate, uint _duration) payable public isAvailableCar(_carId) {
+        //onlyRegisteredCustomerCanCall
         uint deposit = calculateDeposit(_duration, _carId);
 
-        rentalRecord memory record = rentalRecord(records.length + 1, _carId, _renterId, msg.sender, _startDate, _endDate, _duration, false, 0, deposit, 0, RentState.REQUESTED);
+        rentalRecord memory record = rentalRecord(records.length, _carId, _renterId, msg.sender, _startDate, _endDate, _duration, false, 0, deposit, 0, RentState.REQUESTED);
         records.push(record);
 
         emit carRentalRequest(record);
 
+        // companyAddress.transfer(deposit);
         tokenSC.transferFrom(msg.sender, companyAddress, deposit); //after this step user receive car?
 
     }
@@ -197,14 +211,17 @@ contract CarRental{
 
     }
 
-    function returnDeposit(uint _renterRecordId) public isABCCompany() {
+    function returnDeposit(uint _renterRecordId) payable public isABCCompany() {
 
-        tokenSC.transferFrom(companyAddress, records[_renterRecordId-1].walletAddress, records[_renterRecordId-1].deposit);
+        address payable renterAddress = payable(records[_renterRecordId-1].walletAddress);
+
+        renterAddress.transfer(records[_renterRecordId-1].deposit);
+        //tokenSC.transferFrom(companyAddress, records[_renterRecordId-1].walletAddress, records[_renterRecordId-1].deposit);
         records[_renterRecordId-1].state = RentState.DEPOSIT_RETURNED;
 
     }
 
-    function applyReturnCar(uint _renterRecordId) public {
+    function applyReturnCar(uint _renterRecordId) public onlyRegisteredCustomerCanCall {
         records[_renterRecordId-1].state = RentState.WAITING_TO_PAY;
     }
 
@@ -241,7 +258,8 @@ contract CarRental{
         uint price = cars[records[_renterRecordId-1].carId -1].carPrice;
         uint feeWaitingPay = totalRentedDays * price * 9 / 10 + records[_renterRecordId-1].extraFee;
         
-        tokenSC.transferFrom(msg.sender,companyAddress, feeWaitingPay);
+        companyAddress.transfer(feeWaitingPay);
+        //tokenSC.transferFrom(msg.sender,companyAddress, feeWaitingPay);
         records[_renterRecordId-1].carReturned = true;
 
         records[_renterRecordId-1].state = RentState.CLOSE;
@@ -300,6 +318,47 @@ contract CarRental{
         return true;
     }
 
+    function carTransfer(address _walletAddress, uint _amount) public payable returns (bool){
+        tokenSC.transfer(_walletAddress , _amount);
 
+        return true;
+    }
+
+    function parseAddr(string memory _a) internal pure returns (address _parsedAddress) {
+        bytes memory tmp = bytes(_a);
+        uint160 iaddr = 0;
+        uint160 b1;
+        uint160 b2;
+        for (uint i = 2; i < 2 + 2 * 20; i += 2) {
+            iaddr *= 256;
+            b1 = uint160(uint8(tmp[i]));
+            b2 = uint160(uint8(tmp[i + 1]));
+            if ((b1 >= 97) && (b1 <= 102)) {
+                b1 -= 87;
+            } else if ((b1 >= 65) && (b1 <= 70)) {
+                b1 -= 55;
+            } else if ((b1 >= 48) && (b1 <= 57)) {
+                b1 -= 48;
+            }
+            if ((b2 >= 97) && (b2 <= 102)) {
+                b2 -= 87;
+            } else if ((b2 >= 65) && (b2 <= 70)) {
+                b2 -= 55;
+            } else if ((b2 >= 48) && (b2 <= 57)) {
+                b2 -= 48;
+            }
+            iaddr += (b1 * 16 + b2);
+        }
+        return address(iaddr);
+}
+
+    function getAllCars() public view returns (carInfo[] memory) {
+        return cars;
+    }
+
+    function getCarById(uint _carId) public view returns (carInfo memory) {
+        //pay attentation the carid relationship with index and id
+        return cars[_carId];
+    }
     
 }
