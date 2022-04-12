@@ -134,7 +134,7 @@ contract CarRental{
     //add user just need add rentRequest or still need 
 
     function addCarInfo(uint _CarId, string memory _carBrand, string memory _carDescription, string memory _carVin, uint _carSeat, bool _carAvailable, uint _carPrice, address contractAddress) public payable isABCCompany
-    {
+    onlyRegisteredRenterCanCall {
         // isABCCompany
         bool carVinUnique = true;
         carInfo memory car = carInfo(cars.length, _carBrand, _carDescription, _carVin, _carSeat, _carAvailable, _carPrice);
@@ -152,7 +152,7 @@ contract CarRental{
 
     }
 
-    function editCarInfo(uint _carId, string memory _carBrand, string memory _carDescription, string memory _carVin, uint _carSeat, uint _carPrice) payable public isABCCompany{
+    function editCarInfo(uint _carId, string memory _carBrand, string memory _carDescription, string memory _carVin, uint _carSeat, uint _carPrice) payable public isABCCompany onlyRegisteredRenterCanCall{
         //isABCCompany()
         //carVin can not change->vin unique check do in server
         bool carVinRepeat = false;
@@ -233,7 +233,7 @@ contract CarRental{
         records[_renterRecordId].state = RentState.WAITING_TO_PAY;
     }
 
-    function confirmReturn(uint _renterRecordId, uint _extraFee, uint _returnYear, uint _returnMonth, uint _returnDay) payable public isABCCompany {
+    function confirmReturn(uint _renterRecordId, uint _extraFee, uint _returnYear, uint _returnMonth, uint _returnDay) payable public isABCCompany onlyRegisteredRenterCanCall {
         //isABCCompany() 
 
         require(records[_renterRecordId].carReturned == false, "This car has already been returned.");
