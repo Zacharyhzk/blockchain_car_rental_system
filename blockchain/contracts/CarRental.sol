@@ -48,7 +48,6 @@ contract CarRental{
         string userName; // Renter name
         uint userAge; // Renter age
         address walletAddress; // Wallet address of customer
-        //IERC20 renterToken; // renter IERC20 token
     }
 
     // Designing a structure to store the car renting history 
@@ -65,6 +64,8 @@ contract CarRental{
         uint deposit; // deposit
         uint lateFee; //late Fee
         RentState state;
+        string carVin; // Car rental price per day
+        string carBrand; // Car rental price per day
     }
 
     event carRentalRequest (rentalRecord);
@@ -116,21 +117,27 @@ contract CarRental{
     }
 
     // A modifier that uses for the function which can only be called by Borrower.
-    modifier onlyRegisteredCustomerCanCall {
+    modifier onlyRegisteredRenterCanCall {
         // Now only borrower can request rent
         require(identitySC.verifyIsBorrower(msg.sender), "Bank Borrower Only");
        _;
    }
 
+    // modifier BorrowedTokenFromBank {
+    //     //have received token from bank
+    //    require(identitySC.verifyIsBorrower(msg.sender), "Borrowed token Only");
+    //    _;
+    // }
+
     //Do we need modifier to verify renter's address???
 
     //add user just need add rentRequest or still need 
 
-    function addCarInfo(uint _CarId, string memory _carBrand, string memory _carDescription, string memory _carVin, uint _carSeat, bool _available, uint _carPrice, address contractAddress) public payable isABCCompany
+    function addCarInfo(uint _CarId, string memory _carBrand, string memory _carDescription, string memory _carVin, uint _carSeat, bool _carAvailable, uint _carPrice, address contractAddress) public payable isABCCompany
     {
         // isABCCompany
         bool carVinUnique = true;
-        carInfo memory car = carInfo(_CarId, _carBrand, _carDescription, _carVin, _carSeat, _available, _carPrice);
+        carInfo memory car = carInfo(cars.length, _carBrand, _carDescription, _carVin, _carSeat, _carAvailable, _carPrice);
         for (uint i = 0; i < cars.length; i++) {
             if (keccak256(bytes(cars[i].carVin)) == keccak256(bytes(_carVin))) {
                 carVinUnique = false;
@@ -149,10 +156,10 @@ contract CarRental{
         //isABCCompany()
         //carVin can not change->vin unique check do in server
         bool carVinRepeat = false;
-        cars[_carId-1].carBrand = _carBrand;
-        cars[_carId-1].carDescription = _carDescription;
-        cars[_carId-1].carSeat = _carSeat;
-        cars[_carId-1].carPrice = _carPrice;
+        cars[_carId].carBrand = _carBrand;
+        cars[_carId].carDescription = _carDescription;
+        cars[_carId].carSeat = _carSeat;
+        cars[_carId].carPrice = _carPrice;
         for (uint i = 0; i < cars.length; i++) {
             if (keccak256(bytes(cars[i].carVin)) == keccak256(bytes(_carVin))) {
                 carVinRepeat = true;
@@ -160,7 +167,7 @@ contract CarRental{
             }
         }
         require(carVinRepeat == false, "Duplicated car vin number!");
-        cars[_carId-1].carVin = _carVin;
+        cars[_carId].carVin = _carVin;
     }
 
     function deleteCarInfo(uint _carId) public payable isABCCompany {
@@ -168,23 +175,25 @@ contract CarRental{
         cars[_carId].carAvailable = false;
     }
 
-    function applyCar(uint _carId, string memory _renterId, uint _startDate, uint _endDate, uint _duration) payable public isAvailableCar(_carId) {
-        //onlyRegisteredCustomerCanCall
-        uint deposit = calculateDeposit(_duration, _carId);
+    function applyCar(uint _carId, string memory _renterId, uint _startDate, uint _endDate, uint _duration, uint _deposit) payable public isAvailableCar(_carId)  onlyRegisteredRenterCanCall{
+        //onlyRegisteredRenterCanCall
+        //uint deposit = calculateDeposit(_duration, _carId);
 
-        rentalRecord memory record = rentalRecord(records.length, _carId, _renterId, msg.sender, _startDate, _endDate, _duration, false, 0, deposit, 0, RentState.REQUESTED);
+        rentalRecord memory record = rentalRecord(records.length, _carId, _renterId, msg.sender, _startDate, _endDate, _duration, false, 0, _deposit, 0, RentState.REQUESTED, cars[_carId].carVin, cars[_carId].carBrand);
         records.push(record);
 
         emit carRentalRequest(record);
 
         // companyAddress.transfer(deposit);
-        tokenSC.transferFrom(msg.sender, companyAddress, deposit); //after this step user receive car?
+        tokenSC.transfer(companyAddress, _deposit); //after this step user receive car?
+        cars[_carId].carAvailable = false;
 
     }
 
     function calculateDeposit(uint _duration, uint _carId) public view returns (uint deposit) {
         //should use 10/100 rather than 0.1
-        return cars[_carId].carPrice * _duration * 10 / 100;
+        // return cars[_carId].carPrice * _duration * 10 / 100;
+        return cars[_carId].carPrice * _duration;
     }
 
     function approveRent(uint _renterRecordId, uint _carId) public isABCCompany() isAvailableCar(_carId) {
@@ -210,23 +219,24 @@ contract CarRental{
 
     }
 
-    function returnDeposit(uint _renterRecordId) payable public isABCCompany() {
+    function returnDeposit(uint _renterRecordId) payable public isABCCompany() onlyRegisteredRenterCanCall {
 
-        address payable renterAddress = payable(records[_renterRecordId-1].walletAddress);
+        address payable renterAddress = payable(records[_renterRecordId].walletAddress);
 
-        renterAddress.transfer(records[_renterRecordId-1].deposit);
-        //tokenSC.transferFrom(companyAddress, records[_renterRecordId-1].walletAddress, records[_renterRecordId-1].deposit);
-        records[_renterRecordId-1].state = RentState.DEPOSIT_RETURNED;
+        //renterAddress.transfer(records[_renterRecordId].deposit);
+        tokenSC.transfer(records[_renterRecordId].walletAddress, records[_renterRecordId].deposit);
+        records[_renterRecordId].state = RentState.DEPOSIT_RETURNED;
 
     }
 
-    function applyReturnCar(uint _renterRecordId) public onlyRegisteredCustomerCanCall {
-        records[_renterRecordId-1].state = RentState.WAITING_TO_PAY;
+    function applyReturnCar(uint _renterRecordId) public {
+        records[_renterRecordId].state = RentState.WAITING_TO_PAY;
     }
 
-    function confirmReturn(uint _renterRecordId, uint _extraFee, uint _returnYear, uint _returnMonth, uint _returnDay) public isABCCompany() {
+    function confirmReturn(uint _renterRecordId, uint _extraFee, uint _returnYear, uint _returnMonth, uint _returnDay) payable public isABCCompany {
+        //isABCCompany() 
 
-        require(records[_renterRecordId-1].carReturned == false, "This car has already been returned.");
+        require(records[_renterRecordId].carReturned == false, "This car has already been returned.");
 
         // Check date is entered correctly
         require(_returnDay <= 31 && _returnDay >= 1, "Check your day entered!");
@@ -234,34 +244,44 @@ contract CarRental{
         require(_returnYear == getYear(block.timestamp), "Year of return should be the current year now which the car is returned.");
 
         // Update the return date in records
-        records[_renterRecordId-1].endDate = _returnDay;
+        records[_renterRecordId].endDate = _returnDay;
 
         // Check if the car is returned late by calculating the days difference 
         //between startDate and endDate, and compare with numOfDays that user intended to rent.
-        uint totalRentedDays = differentDays(records[_renterRecordId-1].startDate, _returnDay);
+        uint totalRentedDays = differentDays(records[_renterRecordId].startDate, _returnDay);
 
-        uint price = cars[records[_renterRecordId-1].carId -1].carPrice;
+        uint price = cars[records[_renterRecordId].carId].carPrice;
 
-        if (totalRentedDays > records[_renterRecordId-1].duration) {
-            records[_renterRecordId-1].lateFee = price * (totalRentedDays - records[_renterRecordId-1].duration); //charge rent * number of days late
+        if (totalRentedDays > records[_renterRecordId].duration) {
+            records[_renterRecordId].lateFee = price * (totalRentedDays - records[_renterRecordId].duration); //charge rent * number of days late
         }
 
-        records[_renterRecordId-1].extraFee = _extraFee;
+        records[_renterRecordId].extraFee = _extraFee;
 
-        records[_renterRecordId-1].state = RentState.WAITING_TO_PAY;
+        records[_renterRecordId].state = RentState.WAITING_TO_PAY;
 
     }
 
-    function payFee(uint _renterRecordId) public {
-        uint totalRentedDays = differentDays(records[_renterRecordId-1].startDate,records[_renterRecordId-1].endDate);
-        uint price = cars[records[_renterRecordId-1].carId -1].carPrice;
-        uint feeWaitingPay = totalRentedDays * price * 9 / 10 + records[_renterRecordId-1].extraFee;
+    function confirmReturnExtra(uint _renterRecordId, uint _carId, uint _damageFee, address _userAddress) payable public isABCCompany onlyRegisteredRenterCanCall{
+        require(records[_renterRecordId].state == RentState.WAITING_TO_PAY, "User didn't apply return this car.");
         
-        companyAddress.transfer(feeWaitingPay);
-        //tokenSC.transferFrom(msg.sender,companyAddress, feeWaitingPay);
-        records[_renterRecordId-1].carReturned = true;
+        tokenSC.transfer(_userAddress, _damageFee);
+        cars[_carId].carAvailable = true;
+        records[_renterRecordId].state = RentState.CLOSE;
 
-        records[_renterRecordId-1].state = RentState.CLOSE;
+    }
+
+
+    function payFee(uint _renterRecordId) public onlyRegisteredRenterCanCall{
+        uint totalRentedDays = differentDays(records[_renterRecordId].startDate,records[_renterRecordId].endDate);
+        uint price = cars[records[_renterRecordId].carId].carPrice;
+        uint feeWaitingPay = totalRentedDays * price * 9 / 10 + records[_renterRecordId].extraFee;
+        
+        //companyAddress.transfer(feeWaitingPay);
+        tokenSC.transfer(companyAddress, feeWaitingPay);
+        records[_renterRecordId].carReturned = true;
+
+        records[_renterRecordId].state = RentState.CLOSE;
 
     }
 
@@ -366,6 +386,16 @@ contract CarRental{
 
     function getRecordById(uint _recordId) public view returns (rentalRecord memory) {
         return records[_recordId];
+    }
+
+    function removeRecords(uint _renterRecordId) public isABCCompany
+    {
+        for (uint i = 0; i < records.length; i++) {
+            if (records[i].renterRecordId == _renterRecordId) {
+                records[i].state = RentState.CLOSE;
+                break;
+            }
+        }
     }
 
     
