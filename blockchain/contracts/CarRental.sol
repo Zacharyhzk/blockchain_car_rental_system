@@ -208,12 +208,11 @@ contract CarRental{
         cars[_carId - 1].carAvailable = false;
     }
 
-    function rejectRent(uint _renterRecordId, uint _carId, address _walletAddress) public payable isABCCompany() isAvailableCar(_carId) onlyRegisteredRenterCanCall {
+    function rejectRent(uint _renterRecordId, uint _carId, address _walletAddress) public payable isABCCompany() isAvailableCar(_carId) {
 
         for (uint i = 0; i < records.length; i++) {
             if (records[i].renterRecordId == _renterRecordId) {
                 records[i].state = RentState.COMPANY_REJECTED;
-                tokenSC.transfer(_walletAddress, records[i].deposit);
                 break;
             }
         }
