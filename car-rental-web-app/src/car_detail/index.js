@@ -39,19 +39,19 @@ function Rent_Car(props) {
     useContext(SmartContractContext);
   const clickEntry = async (values) => {
     try {
-      let temp = {
-        carId: carId,
-        carBrand: carBrand,
-        carDescription: carDescription,
-        carVin: values.carVin,
-        carAvailable: carAvailable === true ? false : true,
-        carPrice: carPrice,
-        walletAddress: values.Wallet_Address,
-        duration: values.duration,
-        fee: values.Rent_Fee,
-      };
+      // let temp = {
+      //   carId: carId,
+      //   carBrand: carBrand,
+      //   carDescription: carDescription,
+      //   carVin: values.carVin,
+      //   carAvailable: carAvailable === true ? false : true,
+      //   carPrice: carPrice,
+      //   walletAddress: values.Wallet_Address,
+      //   duration: values.duration,
+      //   fee: values.Rent_Fee,
+      // };
       //   debugger
-      record.push(temp);
+      //record.push(temp);
       // localStorage.setItem("record", JSON.stringify(record));
       const accounts = await window.ethereum.enable();
       console.log("12344", accounts);
