@@ -265,7 +265,7 @@ contract CarRental{
     function confirmReturnExtra(uint _renterRecordId, uint _carId, uint _damageFee, address _userAddress) payable public isABCCompany onlyRegisteredRenterCanCall{
         require(records[_renterRecordId].state == RentState.WAITING_TO_PAY, "User didn't apply return this car.");
         
-        tokenSC.transfer(_userAddress, _damageFee);
+        tokenSC.transfer(companyAddress, _damageFee);
         cars[_carId].carAvailable = true;
         records[_renterRecordId].state = RentState.CLOSE;
 
