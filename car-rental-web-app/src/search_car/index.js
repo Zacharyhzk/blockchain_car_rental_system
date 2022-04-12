@@ -39,7 +39,7 @@ function ProfList() {
           values.carDescription,
           values.carVin,
           values.carSeat,
-          values.carAvailable,
+          values.carAvailable == "1"? true: false,
           values.carPrice,
           CarRentalContract._address
         )
@@ -56,7 +56,6 @@ function ProfList() {
       // const renters = CarRentalContract.methods.getAllCars().call();
       // console.log("carstest11111", cars);
       message.success("Add Car Info Successfully");
-      console.log("234");
     } catch (err) {
       debugger;
       console.log("22", err);
@@ -70,6 +69,7 @@ function ProfList() {
     try {
       let temp = await CarRentalContract.methods.getAllCars().call();
       setCarList(temp);
+      console.log("cars", temp);
     } catch (err) {
       // debugger;
       console.log("22", err);

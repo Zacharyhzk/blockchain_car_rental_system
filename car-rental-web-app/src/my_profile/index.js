@@ -82,6 +82,9 @@ function CourseList() {
             .send({ from: accounts[0] });
           message.success("Return Car Successfully");
           let records = await CarRentalContract.methods.getAllReconds().call();
+          records = records.filter((item) => { 
+            return item.renterId === userName; 
+            }); 
           await setRecords(records);
           // message.success(`Return status ${selectId} updated`);
         } catch (err) {

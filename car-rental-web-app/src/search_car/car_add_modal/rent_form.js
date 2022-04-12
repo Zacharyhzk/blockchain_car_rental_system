@@ -76,7 +76,7 @@ function Rent_form(props) {
         <InputNumber />
       </Form.Item>
       <Form.Item label="Car Status" name="carAvailable">
-        <Select name ="Avail">
+        <Select name ="carAvailable">
           <Select.Option value="1">Available</Select.Option>
           <Select.Option value="0">Not Available</Select.Option>
         </Select>
