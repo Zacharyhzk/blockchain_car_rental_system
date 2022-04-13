@@ -8,7 +8,6 @@ import Home from "./home";
 import Signin from "./home/login";
 import Signup from "./home/signup";
 import Dashboard from "./home/dashboard";
-import AddCar from "./course_entry";
 import SearchCar from "./search_car";
 import MyProfile from "./my_profile";
 import CarDetail from "./car_detail";
@@ -23,7 +22,6 @@ function App() {
         <Route exact path="/signin" component={Signin} />
         <Route exact path="/signup" component={Signup} />
         <Route exact path="/dashboard" component={Dashboard} />
-        <Route exact path="/addCar" component={AddCar} />
         <Route exact path="/searchCar" component={SearchCar} />
         <Route exact path="/profile" component={MyProfile} />
         <Route exact path="/cardetail" component={CarDetail} />
