@@ -5,10 +5,10 @@ import Web3 from 'web3';
 // import BankLoanBuild from '../build/contracts/BankLoan.json';
 // import UserIdentityBuild from '../build/contracts/UserIdentity.json';
 
-import MicroTokenBuild from '../../blockchain/build/contracts/MicroToken.json';
-import BankLoanBuild from '../../blockchain/build/contracts/BankLoan.json';
-import UserIdentityBuild from '../../blockchain/build/contracts/UserIdentity.json';
-import CarRentalBuild from '../../blockchain/build/contracts/CarRental.json';
+import MicroTokenBuild from '../../../blockchain/build/contracts/MicroToken.json';
+import BankLoanBuild from '../../../blockchain/build/contracts/BankLoan.json';
+import UserIdentityBuild from '../../../blockchain/build/contracts/UserIdentity.json';
+import CarRentalBuild from '../../../blockchain/build/contracts/CarRental.json';
 
 
 // Create context and set default values.
